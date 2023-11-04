@@ -255,4 +255,14 @@ enum Operator: String{
          }
      }
  }
+
+ func parseCategory(from categoryData: [String: Any]) -> CategoryModel? {
+        guard let name = categoryData["name"] as? String ,
+              let categoryId = categoryData["categoryId"] as? String,
+              let thumbnailCategory = categoryData["thumbnailCategory"] as? String else {
+                  return nil
+              }
+        
+        return CategoryModel(categoryId: categoryId, name: name, thumbnailCategory: thumbnailCategory)
+    }
 */
