@@ -201,3 +201,58 @@ enum Operator: String{
     case isGreaterThanOrEqualTo = "isGreaterThanOrEqualTo"
     case isNotEqualTo = "isNotEqualTo"
 }
+
+
+/*
+ Usage example for fetching objects from a Firestore collection and handling the fetched data.
+
+ Example usage includes fetching a list of `CategoryModel` objects from the Firestore `categorys` collection.
+
+ - Note: In this example, I define a `CategoryModel` conforming to the `FirestoreObject` protocol and implement the required functions `toDictionary` and `id`.
+
+ - Note: The function `fetchAllCategory` is used to fetch all documents from the Firestore `categorys` collection, convert them into `CategoryModel` objects, and update the `dataCategorys` property, which can be used to display the data in the user interface.
+
+ Example usage:
+
+ struct CategoryModel: FirestoreObject{
+     var categoryId: String = ""
+     var name: String = ""
+     var thumbnailCategory: String = ""
+     
+     var id:String{
+         //return -> categoryId
+         return categoryId
+     }
+     
+     func toDictionary() -> [String: Any] {
+         let data: [String: Any] = [
+             "categoryId" : self.categoryId,
+             "name": self.name,
+             "thumbnailCategory": self.thumbnailCategory,
+         ]
+         
+         return data
+     }
+ }
+
+ func fetchAllCategory() {
+     fetchAllObjects(collectionName: .category) { querySnapshot, error in
+         if let error = error {
+             print("Error getting documents: \(error)")
+         } else {
+             var data: [CategoryModel] = []
+             
+             for document in querySnapshot!.documents {
+                 let categoryData = document.data()
+                 
+                 if let category = ModelFactory.shared.parseCategory(from: categoryData) {
+                     data.append(category)
+                 }
+             }
+             withAnimation {
+                 self.dataCategorys = data
+             }
+         }
+     }
+ }
+*/
