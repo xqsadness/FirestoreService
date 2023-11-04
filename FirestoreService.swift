@@ -245,7 +245,7 @@ enum Operator: String{
              for document in querySnapshot!.documents {
                  let categoryData = document.data()
                  
-                 if let category = ModelFactory.shared.parseCategory(from: categoryData) {
+                 if let category = parseCategory(from: categoryData) {
                      data.append(category)
                  }
              }
