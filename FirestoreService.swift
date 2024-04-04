@@ -214,6 +214,28 @@ enum Operator: String{
 
  Example usage:
 
+ -- Model
+ struct CategoryModel: FirestoreObject{
+    var categoryId: String = ""
+    var name: String = ""
+    var thumbnailCategory: String = ""
+    
+    var id:String{
+        return categoryId
+    }
+    
+    func toDictionary() -> [String: Any] {
+        let data: [String: Any] = [
+            "categoryId" : self.categoryId,
+            "name": self.name,
+            "thumbnailCategory": self.thumbnailCategory,
+        ]
+        
+        return data
+    }
+}
+
+ -- VM
  struct CategoryModel: FirestoreObject{
      var categoryId: String = ""
      var name: String = ""
@@ -235,6 +257,7 @@ enum Operator: String{
      }
  }
 
+-- fetch
  func fetchAllCategory() {
      fetchAllObjects(collectionName: .category) { querySnapshot, error in
          if let error = error {
@@ -264,5 +287,41 @@ enum Operator: String{
               }
         
         return CategoryModel(categoryId: categoryId, name: name, thumbnailCategory: thumbnailCategory)
+    }
+
+-- Write
+ func addCategory() {
+        let categoryId = UUID().uuidString
+        
+        let storageRef = Storage.storage().reference().child("Category_Images").child(categoryId)
+        
+        guard let thumbnailCategory = thumbnailCategory else {
+            LocalNotification.shared.message("Default profile image not found", .warning)
+            return
+        }
+        
+        // convert type image to png
+        let metaData = StorageMetadata()
+        metaData.contentType = "image/png"
+        
+        // Convert the image into JPEG and compress the quality to reduce its size
+        let data = thumbnailCategory.jpegData(compressionQuality: 0.2)
+        
+        // Upload the image
+        if let data = data {
+            storageRef.putData(data, metadata: metaData) { (metadata, error) in
+                if let error = error {
+                    LocalNotification.shared.message("Error while uploading file: \(error.localizedDescription)", .error)
+                }else{
+                    Task{
+                        let urlCategory = try await storageRef.downloadURL()
+                        
+                        self.updateCategoryWithImage(categoryId: categoryId, urlImage: urlCategory.absoluteString)
+                        //add category with downloadURL from storage and fetch category
+                       
+                    }
+                }
+            }
+        }
     }
 */
